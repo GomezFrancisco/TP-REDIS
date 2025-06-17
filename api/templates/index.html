@@ -1,0 +1,262 @@
+<html>
+<head>
+  {% include 'componentes/navbar.html' %}
+  <title>Mandalorians</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #e62429;
+      --dark-color: #1a1a1a;
+      --light-color: #f8f9fa;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .card {
+      margin-bottom: 25px;
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      background-color: white;
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    
+    .season-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .status-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .available-badge {
+      background-color: #28a745;
+      color: white;
+    }
+    
+    .reserved-badge {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .rented-badge {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .card-img-top {
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .jumbotron {
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      color: white;
+      border-radius: 0;
+      padding: 3rem 2rem;
+      margin-bottom: 2rem;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .jumbotron h1 {
+      font-weight: 700;
+    }
+    
+    .btn-rent {
+      background-color: var(--primary-color);
+      border: none;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      padding: 8px 20px;
+      border-radius: 30px;
+      transition: all 0.3s;
+    }
+    
+    .btn-rent:hover {
+      background-color: #c11a1f;
+      transform: translateY(-2px);
+    }
+    
+    .btn-rent:disabled {
+      background-color: #6c757d;
+    }
+    
+    .card-title {
+      font-weight: 700;
+      color: var(--dark-color);
+      margin-bottom: 15px;
+    }
+    
+    .card-text {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    
+    .navbar-brand {
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+    
+    .nav-link {
+      padding: 8px 15px;
+      margin: 0 5px;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+    
+    .nav-link:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-4">The Mandalorian</h1>
+      <p class="lead">Todos los episodios disponibles para alquilar</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      {% for cap in datos %}
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+          <span class="season-badge">Temporada {{ cap.temporada }}</span>
+          <span class="status-badge 
+            {% if cap.estado == 'disponible' %}available-badge
+            {% elif cap.estado == 'reservado' %}reserved-badge
+            {% else %}rented-badge{% endif %}">
+            {{ cap.estado|capitalize }}
+          </span>
+          <img src="https://lumiere-a.akamaihd.net/v1/images/the-mandalorian-season-3-poster-disney-ca7f95b5b4f5.jpeg" class="card-img-top" alt="{{ cap.titulo }}">
+          <div class="card-body">
+            <h5 class="card-title">Capítulo {{ cap.capitulo }}: {{ cap.titulo }}</h5>
+            <p class="card-text">{{ cap.descripcion }}</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <button class="btn btn-rent btn-block rent-btn" data-id="{{ cap.id }}" 
+              {% if cap.estado != 'disponible' %}disabled{% endif %}>
+              Alquilar por $2.99
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+<script>
+$(document).ready(function() {
+  $('.rent-btn').click(function() {
+    const id = $(this).data('id');
+    const button = $(this);
+    
+    swal({
+      title: "Confirmar alquiler",
+      text: "¿Deseas alquilar este episodio por $2.99?",
+      icon: "info",
+      buttons: ["Cancelar", "Confirmar"],
+    })
+    .then((confirm) => {
+      if (confirm) {
+        // Reservar el episodio
+        fetch(`/alquilar/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.msg.includes("reservado")) {
+            swal("¡Reservado!", "El episodio ha sido reservado por 4 minutos. Procede con el pago.", "success");
+            
+            // Actualizar estado en la UI
+            button.prop('disabled', true);
+            button.closest('.card').find('.status-badge')
+              .text('Reservado')
+              .removeClass('available-badge')
+              .addClass('reserved-badge');
+            
+            // Simular proceso de pago
+            setTimeout(() => {
+              swal({
+                title: "Procesando pago...",
+                text: "Por favor espera mientras procesamos tu pago",
+                icon: "info",
+                buttons: false,
+                closeOnClickOutside: false,
+                closeOnEsc: false
+              });
+              
+              // Confirmar pago después de 2 segundos
+              setTimeout(() => {
+                fetch('/confirmar_pago', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({id: id, precio: 2.99})
+                })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.msg.includes("confirmado")) {
+                    swal("¡Pago Confirmado!", "El episodio ha sido alquilado por 24 horas. ¡Disfrútalo!", "success");
+                    button.closest('.card').find('.status-badge')
+                      .text('Alquilado')
+                      .removeClass('reserved-badge')
+                      .addClass('rented-badge');
+                  } else {
+                    swal("Error", "No se pudo confirmar el pago. Intenta nuevamente.", "error");
+                    button.prop('disabled', false);
+                    button.closest('.card').find('.status-badge')
+                      .text('Disponible')
+                      .removeClass('reserved-badge')
+                      .addClass('available-badge');
+                  }
+                });
+              }, 2000);
+            }, 1000);
+          } else {
+            swal("Error", "El episodio no está disponible para alquilar.", "error");
+          }
+        });
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
